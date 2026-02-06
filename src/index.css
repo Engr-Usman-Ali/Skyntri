@@ -10,3 +10,28 @@
     animation: scan 2s ease-in-out infinite alternate;
   }
 }
+
+@keyframes scan-line {
+  0% { top: 0%; }
+  100% { top: 100%; }
+}
+
+.animate-scan-line {
+  animation: scan-line 2.5s linear infinite;
+}
+
+@keyframes loading {
+  0% { width: 0%; transform: translateX(-100%); }
+  50% { width: 100%; transform: translateX(0%); }
+  100% { width: 0%; transform: translateX(100%); }
+}
+
+/* Ensure this is in your CSS for the scanning line too */
+@keyframes scan-line {
+  0% { top: 0%; }
+  100% { top: 100%; }
+}
+
+.animate-scan-line {
+  animation: scan-line 2.5s linear infinite;
+}
