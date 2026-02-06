@@ -7,27 +7,27 @@ import DashboardHeader from "../components/DashboardHeader";
 import AnalysisModal from "../components/AnalysisModal";
 import IngredientSafetyTab from "../components/IngredientSafetyTab";
 import GlobalAIAssistant from "../components/GlobalAIAssistant";
+import Marketplace from "../components/Marketplace";
+import Settings from "../components/Settings";
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("Overview");
 
   return (
-    // We use h-screen and overflow-hidden on the wrapper to prevent "Double Scrollbars"
     <div className="h-screen w-full bg-[#F8FAFC] flex font-sans overflow-hidden">
-      
-      {/* 1. SIDEBAR: Fixed to the left */}
+
+      {/* 1. SIDEBAR */}
       <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
 
-      {/* 2. MAIN CONTENT AREA: A flex column that fills the rest of the screen */}
       <div className="flex-1 flex flex-col min-w-0 relative">
-        
-        {/* 3. HEADER: Stays at the top of the content area */}
+
+        {/* 2. HEADER */}
         <DashboardHeader activeTab={activeTab} setActiveTab={setActiveTab} />
 
-        {/* 4. SCROLLABLE BODY: This is the ONLY part that should scroll */}
+        {/* 3. SCROLLABLE BODY */}
         <main className="flex-1 overflow-y-auto overflow-x-hidden p-6 md:p-10 custom-scrollbar">
           <div className="max-w-7xl mx-auto w-full pb-20">
-            
+
             {/* --- OVERVIEW TAB --- */}
             {activeTab === "Overview" && (
               <section className="space-y-10 animate-in fade-in duration-500">
@@ -60,15 +60,29 @@ export default function Dashboard() {
               </section>
             )}
 
-            {/* --- INGREDIENT SAFETY TAB --- */}
+            {/* --- INGREDIENT SAFETY TAB (OCR) --- */}
             {activeTab === "OCR" && (
               <div className="animate-in fade-in duration-500">
                 <IngredientSafetyTab />
               </div>
             )}
 
-            {/* --- PLACEHOLDERS --- */}
-            {["Progress", "History", "Products", "Settings"].includes(activeTab) && (
+            {/* --- MARKETPLACE TAB --- */}
+            {activeTab === "Products" && (
+              <div className="animate-in fade-in duration-500">
+                <Marketplace />
+              </div>
+            )}
+
+            {/* --- SETTINGS TAB --- */}
+            {activeTab === "Settings" && (
+              <div className="animate-in fade-in duration-500">
+                <Settings />
+              </div>
+            )}
+
+            {/* --- PLACEHOLDERS (Removed 'Products' from here) --- */}
+            {["Progress", "History"].includes(activeTab) && (
               <div className="p-20 text-center bg-white rounded-[2.5rem] border border-slate-100 animate-in zoom-in-95 duration-300">
                 <h3 className="text-xl font-black text-slate-900 mb-2">{activeTab} View</h3>
                 <p className="text-slate-400 font-medium">This section is currently under clinical review.</p>
@@ -77,10 +91,7 @@ export default function Dashboard() {
           </div>
         </main>
 
-        {/* 5. AI ASSISTANT: 
-            Placed OUTSIDE the <main> scroll area but INSIDE the relative container.
-            This ensures it floats on top of everything and never gets cut off. 
-        */}
+        {/* 4. AI ASSISTANT */}
         <div className="absolute bottom-0 right-0 z-[999]">
           <GlobalAIAssistant />
         </div>
