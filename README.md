@@ -41,13 +41,23 @@ cd skyntri
 ### 2. Install Dependencies
 ```
 npm install
+npm install axios chart.js jspdf lucide-react recharts
 ```
 
-### 3. Run Development Server
+### 3. Setup Tailwind CSS
+```
+# Install and initialize styling engine
+npm install -D tailwindcss postcss autoprefixer
+npx tailwindcss init -p
+```
+
+### 4. Run Development Server
 ```
 npx vite
+# or
+npm run dev
 ```
-### 4. Build for Production
+### 5. Build for Production
 ```
 npx vite build
 ```
