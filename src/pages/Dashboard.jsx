@@ -9,6 +9,8 @@ import IngredientSafetyTab from "../components/IngredientSafetyTab";
 import GlobalAIAssistant from "../components/GlobalAIAssistant";
 import Marketplace from "../components/Marketplace";
 import Settings from "../components/Settings";
+import ProgressTracker from "../components/ProgressTracker";
+import HistoryTab from "../components/HistoryTab";
 
 export default function Dashboard() {
   const [activeTab, setActiveTab] = useState("Overview");
@@ -81,11 +83,17 @@ export default function Dashboard() {
               </div>
             )}
 
-            {/* --- PLACEHOLDERS (Removed 'Products' from here) --- */}
-            {["Progress", "History"].includes(activeTab) && (
-              <div className="p-20 text-center bg-white rounded-[2.5rem] border border-slate-100 animate-in zoom-in-95 duration-300">
-                <h3 className="text-xl font-black text-slate-900 mb-2">{activeTab} View</h3>
-                <p className="text-slate-400 font-medium">This section is currently under clinical review.</p>
+            {/* --- PROGRESS TAB --- */}
+            {activeTab === "Progress" && (
+              <div className="animate-in fade-in duration-500">
+                <ProgressTracker />
+              </div>
+            )}
+
+            {/* --- HISTORY TAB --- */}
+            {activeTab === "History" && (
+              <div className="animate-in fade-in duration-500">
+                <HistoryTab />
               </div>
             )}
           </div>
