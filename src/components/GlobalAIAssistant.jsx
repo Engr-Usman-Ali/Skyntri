@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { MessageSquare, Send, X, Bot } from "lucide-react";
 
-export default function GlobalAIAssistant() {
+export default function GlobalAIAssistant({ activeTab }) {
   const [isOpen, setIsOpen] = useState(false);
   const [input, setInput] = useState("");
   const [isTyping, setIsTyping] = useState(false);
@@ -11,28 +11,21 @@ export default function GlobalAIAssistant() {
 
   const scrollRef = useRef(null);
 
-  // 1. LISTEN FOR SIGNALS (Event Listener + Global Window Function)
+  // Auto-close chat when switching dashboard tabs
   useEffect(() => {
-    // Method A: Event Listener (Standard)
-    const handleOpen = () => {
-      console.log("AI Assistant: Signal received!");
-      setIsOpen(true);
-    };
+    setIsOpen(false);
+  }, [activeTab]);
 
-    // Method B: Global Function (Backup)
-    window.toggleSkyntriAI = () => {
-      setIsOpen((prev) => !prev);
-    };
-
+  useEffect(() => {
+    const handleOpen = () => setIsOpen(true);
+    window.toggleSkyntriAI = () => setIsOpen((prev) => !prev);
     window.addEventListener('openSkyntriAI', handleOpen);
-
     return () => {
       window.removeEventListener('openSkyntriAI', handleOpen);
       delete window.toggleSkyntriAI;
     };
   }, []);
 
-  // 2. AUTO-SCROLL LOGIC
   useEffect(() => {
     if (isOpen && scrollRef.current) {
       scrollRef.current.scrollIntoView({ behavior: "smooth" });
@@ -52,93 +45,94 @@ export default function GlobalAIAssistant() {
   };
 
   return (
-    // Z-INDEX MUST BE HIGHER THAN EVERYTHING ELSE (99999)
-    <div className="fixed bottom-6 right-6 z-[99999] flex flex-col items-end gap-4 pointer-events-none">
-
-      {/* CHAT WINDOW CONTAINER */}
-      <div className={`w-[350px] md:w-[380px] 
-    /* NEW HEIGHT CONSTRAINTS */
-    max-h-[70vh] md:max-h-[80vh] 
-    flex flex-col 
-    bg-white rounded-[2rem] shadow-[0_20px_60px_rgba(0,0,0,0.3)] border border-slate-200 
-    overflow-hidden transition-all duration-500 origin-bottom-right pointer-events-auto 
-    ${isOpen
-          ? "scale-100 opacity-100 translate-y-0"
-          : "scale-0 opacity-0 translate-y-20"
-        }`}
+    <div className="fixed bottom-6 right-6 z-[10000] flex flex-col items-end pointer-events-none">
+      
+      {/* CHAT WINDOW */}
+      <div className={`w-[320px] md:w-[380px] 
+        /* FIX: Laptop screen height protection */
+        h-[500px] md:h-[600px] max-h-[calc(100vh-100px)] 
+        bg-white rounded-[2.5rem] shadow-[0_32px_64px_-16px_rgba(0,0,0,0.3)] border border-slate-200 
+        flex flex-col overflow-hidden transition-all duration-500 origin-bottom-right pointer-events-auto mb-4
+        ${isOpen ? "scale-100 opacity-100 translate-y-0" : "scale-0 opacity-0 translate-y-20"}`}
       >
-        {/* HEADER - This will now stay visible at the top of the chat box */}
-        <div className="bg-slate-900 p-5 flex items-center justify-between shrink-0">
+        
+        {/* 1. HEADER - Hard locked with h-16 and shrink-0 */}
+        <div className="h-16 min-h-[64px] bg-slate-900 flex items-center justify-between px-6 shrink-0 z-50">
           <div className="flex items-center gap-3">
             <div className="bg-blue-600 p-2 rounded-xl text-white">
               <Bot size={18} />
             </div>
-            <p className="text-white font-black text-sm uppercase tracking-tight">Skyntri AI Assistant</p>
+            <div className="flex flex-col">
+              <span className="text-white font-black text-[11px] uppercase tracking-wider leading-none">
+                Skyntri AI Assistant
+              </span>
+              <span className="text-[9px] text-emerald-400 font-bold mt-1 uppercase tracking-widest">
+                Active Now
+              </span>
+            </div>
           </div>
-          <button onClick={() => setIsOpen(false)} className="text-slate-400 hover:text-white">
+          <button 
+            onClick={() => setIsOpen(false)} 
+            className="text-slate-500 hover:text-white transition-colors p-1"
+          >
             <X size={20} />
           </button>
         </div>
 
-        {/* MESSAGES AREA */}
-        <div className="h-[400px] overflow-y-auto p-5 space-y-4 bg-slate-50/50">
+        {/* 2. MESSAGE BODY - The only part that scrolls */}
+        <div className="flex-1 overflow-y-auto p-5 space-y-4 bg-slate-50/50">
           {messages.map((m, i) => (
             <div key={i} className={`flex ${m.role === "user" ? "justify-end" : "justify-start"}`}>
-              <div className={`max-w-[85%] p-4 rounded-2xl text-[12px] font-bold leading-relaxed shadow-sm ${m.role === "user"
+              <div className={`max-w-[85%] p-4 rounded-2xl text-[11px] font-bold leading-relaxed shadow-sm ${
+                m.role === "user"
                   ? "bg-blue-600 text-white rounded-tr-none"
                   : "bg-white text-slate-700 border border-slate-100 rounded-tl-none"
-                }`}>
+              }`}>
                 {m.text}
               </div>
             </div>
           ))}
           {isTyping && (
-            <div className="flex justify-start">
-              <div className="flex gap-1 p-3 bg-white rounded-full border border-slate-100 shadow-sm">
-                <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce"></div>
-                <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce [animation-delay:0.2s]"></div>
-                <div className="w-1.5 h-1.5 bg-blue-400 rounded-full animate-bounce [animation-delay:0.4s]"></div>
-              </div>
-            </div>
+             <div className="flex justify-start">
+                <div className="bg-white p-3 rounded-xl border border-slate-100 flex gap-1">
+                  <div className="w-1 h-1 bg-blue-400 rounded-full animate-bounce"></div>
+                  <div className="w-1 h-1 bg-blue-400 rounded-full animate-bounce [animation-delay:0.2s]"></div>
+                  <div className="w-1 h-1 bg-blue-400 rounded-full animate-bounce [animation-delay:0.4s]"></div>
+                </div>
+             </div>
           )}
           <div ref={scrollRef} />
         </div>
 
-        {/* INPUT AREA */}
-        <div className="p-4 bg-white border-t border-slate-100 shrink-0">
-          <div className="relative flex items-center gap-2">
+        {/* 3. INPUT - Hard locked with h-20 and shrink-0 */}
+        <div className="h-20 min-h-[80px] bg-white border-t border-slate-100 flex items-center px-4 shrink-0">
+          <div className="relative w-full flex items-center">
             <input
               type="text"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               onKeyPress={(e) => e.key === "Enter" && handleSend()}
-              placeholder="Message your AI dermatologist..."
-              className="w-full bg-slate-100 rounded-2xl py-4 pl-5 pr-12 text-xs font-bold outline-none focus:ring-2 focus:ring-blue-500/20 transition-all border border-transparent focus:border-blue-500/20"
+              placeholder="Ask Skyntri AI..."
+              className="w-full bg-slate-100 rounded-xl py-3.5 pl-4 pr-12 text-[11px] font-bold outline-none border-none"
             />
             <button
               onClick={handleSend}
-              className="absolute right-2 bg-blue-600 text-white p-2 rounded-xl hover:bg-blue-700 transition-colors shadow-lg shadow-blue-200"
+              className="absolute right-1.5 bg-slate-900 text-white p-2 rounded-lg hover:bg-blue-600 transition-all"
             >
-              <Send size={16} />
+              <Send size={14} />
             </button>
           </div>
         </div>
       </div>
 
-      {/* FLOATING TRIGGER BUTTON */}
+      {/* TRIGGER BUTTON */}
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`p-4 rounded-2xl shadow-2xl transition-all duration-500 pointer-events-auto group ${isOpen ? "bg-slate-900 rotate-90 scale-90" : "bg-blue-600 hover:scale-110 active:scale-95"
-          }`}
+        className={`p-4 rounded-2xl shadow-2xl transition-all duration-500 pointer-events-auto ${
+          isOpen ? "bg-slate-900 rotate-90 scale-90" : "bg-blue-600 hover:scale-110 active:scale-95"
+        }`}
       >
-        {isOpen ? (
-          <X className="text-white" size={28} />
-        ) : (
-          <div className="relative">
-            <MessageSquare className="text-white" size={28} />
-            <span className="absolute -top-1 -right-1 w-3 h-3 bg-emerald-500 border-2 border-blue-600 rounded-full"></span>
-          </div>
-        )}
+        {isOpen ? <X className="text-white" size={24} /> : <MessageSquare className="text-white" size={24} />}
       </button>
     </div>
   );

@@ -2,7 +2,7 @@ import React, { useState, useRef } from "react";
 import {
   Search, Upload, AlertCircle, CheckCircle2,
   ShieldAlert, Info, BookOpen, RefreshCw,
-  Camera, Type, ArrowLeft
+  Camera, Type, ArrowLeft, Sparkles
 } from "lucide-react";
 
 export default function IngredientSafetyTab() {
@@ -11,10 +11,8 @@ export default function IngredientSafetyTab() {
   const [manualText, setManualText] = useState("");
   const fileInputRef = useRef(null);
 
-  // REQ-2.6: Overall Safety Rating (Simulated result)
   const productRating = 2;
 
-  // REQ-2.2 & 2.3: Mock Database Results for the frontend demo
   const mockAnalysis = [
     { name: "Aqua", function: "Solvent", status: "safe", risk: "None", citation: "CosIng" },
     { name: "Fragrance (Parfum)", function: "Scenting", status: "irritant", risk: "Common allergen for sensitive skin", citation: "IFRA Standards" },
@@ -22,256 +20,214 @@ export default function IngredientSafetyTab() {
     { name: "Glycerin", function: "Humectant", status: "safe", risk: "None", citation: "CIR" }
   ];
 
-  // Handler to trigger the hidden file input
-  const handleUploadClick = () => {
-    fileInputRef.current.click();
-  };
+  const handleUploadClick = () => fileInputRef.current.click();
 
-  // Handler when a file is actually selected
   const handleFileChange = (e) => {
-    if (e.target.files && e.target.files[0]) {
-      startAnalysis();
-    }
+    if (e.target.files && e.target.files[0]) startAnalysis();
   };
 
   const startAnalysis = () => {
     setIsScanning(true);
-    // REQ-2.1: Simulate OCR Extraction / Processing Delay
     setTimeout(() => {
       setIsScanning(false);
       setStep("results");
-    }, 3000);
+    }, 2500);
   };
 
   return (
-    <div className="max-w-5xl mx-auto animate-in fade-in duration-500 pb-20">
-
+    <div className="max-w-4xl mx-auto animate-in fade-in duration-500 pb-16">
+      
       {/* HEADER SECTION */}
-      <div className="mb-10 text-left flex justify-between items-end">
+      <div className="mb-8 flex justify-between items-center">
         <div>
-          <h2 className="text-4xl font-black text-slate-900 tracking-tight mb-2">Ingredient Safety</h2>
-          <p className="text-slate-500 font-medium italic">Advanced AI Label Decoding</p>
+          <h2 className="text-2xl font-black text-slate-900 tracking-tight">Ingredient Safety</h2>
+          <p className="text-slate-400 text-xs font-medium">AI Label Decoding & Safety Analysis</p>
         </div>
         {step !== "choice" && (
           <button
             onClick={() => setStep("choice")}
-            className="flex items-center gap-2 text-slate-400 hover:text-slate-900 font-bold text-sm transition-colors"
+            className="flex items-center gap-2 text-slate-400 hover:text-blue-600 font-bold text-xs transition-colors"
           >
-            <ArrowLeft size={18} /> Back to Choice
+            <ArrowLeft size={14} /> Back to Choice
           </button>
         )}
       </div>
 
       {/* STEP 1: INITIAL CHOICE */}
       {step === "choice" && (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <div
-            onClick={() => setStep("upload")}
-            className="bg-white p-10 rounded-[2.5rem] border-2 border-slate-100 hover:border-blue-500 hover:shadow-xl hover:shadow-blue-50 transition-all cursor-pointer group text-left"
-          >
-            <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-              <Camera size={32} />
-            </div>
-            <h3 className="text-xl font-black mb-2 text-slate-900">Scan Product Label</h3>
-            <p className="text-slate-500 text-sm leading-relaxed">Extract ingredients automatically using Skyntri Vision AI.</p>
-          </div>
-
-          <div
-            onClick={() => setStep("manual")}
-            className="bg-white p-10 rounded-[2.5rem] border-2 border-slate-100 hover:border-emerald-500 hover:shadow-xl hover:shadow-emerald-50 transition-all cursor-pointer group text-left"
-          >
-            <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform">
-              <Type size={32} />
-            </div>
-            <h3 className="text-xl font-black mb-2 text-slate-900">Manual Entry</h3>
-            <p className="text-slate-500 text-sm leading-relaxed">Paste the ingredient list if the label is blurry or damaged.</p>
-          </div>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
+          <ChoiceCard 
+            icon={<Camera size={24} />} 
+            title="Scan Label" 
+            desc="Auto-extract with Vision AI" 
+            color="blue" 
+            onClick={() => setStep("upload")} 
+          />
+          <ChoiceCard 
+            icon={<Type size={24} />} 
+            title="Manual Entry" 
+            desc="Paste ingredient list text" 
+            color="emerald" 
+            onClick={() => setStep("manual")} 
+          />
         </div>
       )}
 
-      {/* STEP 2A: UPLOAD / SCANNING UI */}
+      {/* STEP 2A: UPLOAD / SCANNING */}
       {step === "upload" && (
-        <div className="bg-white rounded-[3rem] p-12 border border-slate-100 text-center shadow-sm">
+        <div className="bg-white rounded-[2rem] p-10 border border-slate-100 text-center shadow-sm">
           {isScanning ? (
-            <div className="py-10">
-              <div className="relative w-48 h-64 mx-auto mb-8 bg-slate-100 rounded-2xl overflow-hidden border-4 border-white shadow-lg">
-                <div className="absolute inset-x-0 top-0 h-1.5 bg-blue-500 shadow-[0_0_15px_rgba(59,130,246,1)] animate-scan-line z-10"></div>
-                <div className="flex flex-col items-center justify-center h-full text-slate-300">
-                  <Search size={32} className="animate-pulse mb-2" />
-                  <span className="text-[10px] font-black uppercase tracking-[0.2em]">Analyzing...</span>
-                </div>
-              </div>
-              <p className="font-black text-slate-900 animate-pulse uppercase tracking-widest">Skyntri OCR Engine v1.0 Active</p>
-            </div>
+            <ScanningProgress color="blue" label="Skyntri OCR Engine v1.0" />
           ) : (
-            <div className="py-10 max-w-sm mx-auto">
-              <div className="w-20 h-20 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-6">
-                <Upload size={32} />
+            <div className="max-w-xs mx-auto">
+              <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                <Upload size={24} />
               </div>
-              <h3 className="text-2xl font-black mb-2">Upload Photo</h3>
-              <p className="text-slate-500 mb-10 text-sm">Ensure the ingredient list is legible for 90% accuracy </p>
-
-              <input
-                type="file"
-                ref={fileInputRef}
-                onChange={handleFileChange}
-                className="hidden"
-                accept="image/*"
-              />
-
-              <button
-                onClick={handleUploadClick}
-                className="w-full bg-blue-600 text-white py-5 rounded-[1.5rem] font-black shadow-xl shadow-blue-100 hover:bg-blue-700 transition-all active:scale-95"
-              >
-                Choose Image
+              <h3 className="text-lg font-black mb-1 text-slate-900">Upload Photo</h3>
+              <p className="text-slate-400 mb-6 text-xs">Ensure label text is clear and readable.</p>
+              <input type="file" ref={fileInputRef} onChange={handleFileChange} className="hidden" accept="image/*" />
+              <button onClick={handleUploadClick} className="w-full bg-blue-600 text-white py-3.5 rounded-xl font-bold text-xs shadow-lg hover:bg-blue-700 transition-all active:scale-95">
+                Browse Files
               </button>
             </div>
           )}
         </div>
       )}
 
-      {/* STEP 2B: MANUAL INPUT UI (REQ-2.9) */}
+      {/* STEP 2B: MANUAL INPUT */}
       {step === "manual" && (
-        <div className="bg-white rounded-[3rem] p-10 border border-slate-100 shadow-sm text-left">
+        <div className="bg-white rounded-[2rem] p-8 border border-slate-100 shadow-sm">
           {isScanning ? (
-            /* --- NEW PROCESSING ANIMATION FOR MANUAL INPUT --- */
-            <div className="py-20 text-center animate-in fade-in duration-500">
-              <div className="relative w-24 h-24 mx-auto mb-8">
-                {/* Pulsing Rings */}
-                <div className="absolute inset-0 border-4 border-emerald-500 rounded-full animate-ping opacity-20"></div>
-                <div className="absolute inset-0 border-4 border-emerald-100 rounded-full"></div>
-                <div className="absolute inset-0 flex items-center justify-center text-emerald-600">
-                  <RefreshCw size={40} className="animate-spin duration-[3000ms]" />
-                </div>
-              </div>
-              <h3 className="text-2xl font-black text-slate-900 mb-2">Cross-Referencing...</h3>
-              <p className="text-slate-400 font-bold text-xs uppercase tracking-[0.3em] animate-pulse">
-                Checking 1,000+ Safe Ingredients
-              </p>
-
-              {/* Simulated progress bars */}
-              <div className="max-w-xs mx-auto mt-8 space-y-3">
-                <div className="h-1.5 w-full bg-slate-100 rounded-full overflow-hidden">
-                  <div className="h-full bg-emerald-500 animate-[loading_2s_ease-in-out_infinite]"></div>
-                </div>
-              </div>
-            </div>
+            <ScanningProgress color="emerald" label="Cross-Referencing Databases" />
           ) : (
-            /* --- ORIGINAL INPUT FORM --- */
             <>
-              <h3 className="text-2xl font-black mb-2 text-slate-900">Input Ingredients</h3>
-              <p className="text-slate-500 mb-6 text-sm">Paste the text found on the back of your product.</p>
+              <h3 className="text-lg font-black mb-1 text-slate-900">Input Ingredients</h3>
+              <p className="text-slate-400 mb-4 text-xs">Paste comma-separated ingredients here.</p>
               <textarea
                 value={manualText}
                 onChange={(e) => setManualText(e.target.value)}
-                className="w-full h-52 p-8 bg-slate-50 border-2 border-slate-100 rounded-[2rem] focus:border-emerald-500 focus:bg-white outline-none transition-all font-medium text-slate-700 placeholder:text-slate-300"
-                placeholder="e.g., Water, Butylene Glycol, Niacinamide..."
+                className="w-full h-40 p-5 bg-slate-50 border border-slate-100 rounded-xl focus:border-emerald-500 focus:bg-white outline-none transition-all text-sm font-medium text-slate-700"
+                placeholder="Water, Niacinamide, Glycerin..."
               />
               <button
                 disabled={!manualText.trim()}
                 onClick={startAnalysis}
-                className="mt-6 w-full bg-slate-900 text-white py-5 rounded-[1.5rem] font-black hover:bg-emerald-600 disabled:bg-slate-200 disabled:cursor-not-allowed transition-all shadow-lg active:scale-95 flex items-center justify-center gap-3"
+                className="mt-4 w-full bg-slate-900 text-white py-3.5 rounded-xl font-bold text-xs hover:bg-emerald-600 disabled:opacity-30 transition-all flex items-center justify-center gap-2"
               >
-                <ShieldAlert size={20} />
-                Run Safety Check
+                <ShieldAlert size={14} /> Run Safety Check
               </button>
             </>
           )}
         </div>
       )}
 
-      {/* STEP 3: RESULTS (REQ-2.2 - REQ-2.10) */}
+      {/* STEP 3: RESULTS */}
       {step === "results" && (
-        <div className="space-y-8 text-left animate-in slide-in-from-bottom-4 duration-700">
-
-          {/* REQ-2.6: Safety Rating Dashboard */}
-          <div className="bg-slate-900 rounded-[2.5rem] p-10 text-white flex flex-col md:flex-row items-center gap-10 shadow-2xl shadow-slate-200">
-            <div className="relative w-36 h-36 flex items-center justify-center shrink-0">
+        <div className="space-y-6 animate-in slide-in-from-bottom-2 duration-500">
+          {/* Summary Score */}
+          <div className="bg-slate-900 rounded-[2rem] p-8 text-white flex flex-col sm:flex-row items-center gap-8 shadow-xl">
+            <div className="relative w-28 h-28 flex items-center justify-center">
               <svg className="w-full h-full rotate-[-90deg]">
-                <circle cx="72" cy="72" r="64" stroke="currentColor" strokeWidth="12" fill="transparent" className="text-slate-800" />
-                <circle cx="72" cy="72" r="64" stroke="currentColor" strokeWidth="12" fill="transparent"
-                  strokeDasharray={402} strokeDashoffset={402 - (402 * productRating) / 5}
-                  strokeLinecap="round"
-                  className={productRating <= 2 ? "text-red-500" : "text-emerald-500"}
+                <circle cx="56" cy="56" r="50" stroke="#1e293b" strokeWidth="8" fill="transparent" />
+                <circle cx="56" cy="56" r="50" stroke={productRating <= 2 ? "#ef4444" : "#10b981"} strokeWidth="8" fill="transparent"
+                  strokeDasharray={314} strokeDashoffset={314 - (314 * productRating) / 5} strokeLinecap="round"
                 />
               </svg>
               <div className="absolute inset-0 flex flex-col items-center justify-center">
-                <span className="text-4xl font-black">{productRating}/5</span>
-                <span className="text-[10px] uppercase font-bold text-slate-500 tracking-widest">Rating</span>
+                <span className="text-2xl font-black">{productRating}/5</span>
+                <span className="text-[8px] uppercase font-bold text-slate-500 tracking-tighter">Safety</span>
               </div>
             </div>
-
-            <div className="flex-1 text-center md:text-left">
-              <div className="flex flex-wrap items-center gap-3 mb-4 justify-center md:justify-start">
-                <h3 className="text-3xl font-black tracking-tight">Clinical Report</h3>
-                <span className="bg-red-500/20 text-red-400 px-4 py-1.5 rounded-xl text-[10px] font-black uppercase tracking-[0.1em] border border-red-500/20">
-                  Potentially Irritating
-                </span>
+            <div className="flex-1 text-center sm:text-left">
+              <div className="flex items-center gap-2 mb-2 justify-center sm:justify-start">
+                <h3 className="text-xl font-black">Analysis Report</h3>
+                <span className="bg-red-500/20 text-red-400 px-2 py-0.5 rounded text-[9px] font-bold border border-red-500/20 uppercase">Action Required</span>
               </div>
-              <p className="text-slate-400 text-sm leading-relaxed mb-8 max-w-xl">
-                This product contains <span className="text-red-400 font-bold">Methylparaben</span>, which is contraindicated for your <span className="text-blue-400 font-bold italic">Acne-Prone</span> skin profile
+              <p className="text-slate-400 text-[11px] leading-relaxed mb-4 max-w-md">
+                Found <span className="text-red-400 font-bold">1 toxic</span> ingredient. Recommended for avoidance for your skin profile.
               </p>
-
-              {/* REQ-2.8: Alternatives available in Pakistan */}
-              <div className="bg-blue-500/10 border border-blue-500/20 p-5 rounded-2xl inline-flex items-center gap-4 text-blue-300 text-xs font-bold w-full md:w-auto">
-                <div className="bg-blue-500 p-2 rounded-lg text-white shadow-lg shadow-blue-500/20">
-                  <RefreshCw size={16} />
-                </div>
-                <div>
-                  <p className="text-blue-400/60 uppercase text-[9px]">REQ-2.8: Suggestion</p>
-                  <p>Alternative found in Pakistan: <span className="underline cursor-pointer hover:text-white">Jenpharm Dermive Oil Free</span></p>
-                </div>
+              <div className="bg-blue-500/10 border border-blue-500/10 p-3 rounded-xl inline-flex items-center gap-3 text-[10px] font-bold text-blue-300">
+                <RefreshCw size={14} className="text-blue-500" />
+                <span>Local Alternative: <span className="text-white underline cursor-pointer">Jenpharm Dermive</span></span>
               </div>
             </div>
           </div>
 
-          {/* REQ-2.2: Ingredient Breakdown Table */}
-          <div className="grid grid-cols-1 gap-4">
+          {/* Breakdown List */}
+          <div className="space-y-3">
             {mockAnalysis.map((ing, i) => (
-              <div key={i} className="bg-white border border-slate-100 p-7 rounded-[2rem] flex flex-col md:flex-row md:items-center justify-between gap-6 hover:shadow-lg transition-all duration-300">
-                <div className="flex gap-5">
-                  <div className={`mt-1 p-2.5 rounded-2xl shrink-0 h-fit ${ing.status === 'safe' ? 'bg-emerald-50 text-emerald-500 shadow-emerald-100 shadow-lg' :
-                      ing.status === 'toxic' ? 'bg-red-50 text-red-500 shadow-red-100 shadow-lg' : 'bg-amber-50 text-amber-500 shadow-amber-100 shadow-lg'
-                    }`}>
-                    {ing.status === 'safe' ? <CheckCircle2 size={24} /> : <ShieldAlert size={24} />}
-                  </div>
-                  <div>
-                    <div className="flex items-center gap-3 mb-1">
-                      <h4 className="font-black text-slate-900 text-xl">{ing.name}</h4>
-                      <span className="text-[10px] bg-slate-100 text-slate-400 px-2 py-1 rounded-md font-black uppercase tracking-widest">{ing.function}</span>
-                    </div>
-                    <p className="text-sm text-slate-600 mt-2 font-medium leading-relaxed">
-                      {/* REQ-2.7: Risk Explanation */}
-                      <span className="font-bold text-slate-800">Safety Note:</span> {ing.risk}
-                    </p>
-                  </div>
-                </div>
-
-                <div className="flex flex-col items-end gap-3 shrink-0">
-                  <span className={`px-5 py-2 rounded-xl text-[11px] font-black uppercase tracking-widest border ${ing.status === 'safe' ? 'bg-emerald-50 text-emerald-700 border-emerald-100' :
-                      ing.status === 'toxic' ? 'bg-red-50 text-red-700 border-red-100' : 'bg-amber-50 text-amber-700 border-amber-100'
-                    }`}>
-                    {ing.status}
-                  </span>
-                  {/* REQ-2.10: Citations */}
-                  <div className="flex items-center gap-2 text-slate-300 text-[10px] font-bold italic uppercase tracking-tighter">
-                    <BookOpen size={14} /> Ref: {ing.citation} Database
-                  </div>
-                </div>
-              </div>
+              <IngredientItem key={i} {...ing} />
             ))}
           </div>
 
-          <div className="flex gap-4">
-            <button
-              onClick={() => setStep("choice")}
-              className="flex-1 py-6 bg-slate-900 text-white rounded-[1.8rem] font-black hover:bg-blue-600 transition-all shadow-xl shadow-slate-200 uppercase tracking-widest text-sm"
-            >
-              Analyze Another Product
-            </button>
-          </div>
+          <button onClick={() => setStep("choice")} className="w-full py-4 bg-slate-100 text-slate-600 rounded-xl text-xs font-bold hover:bg-slate-200 transition-all uppercase tracking-widest">
+            Scan Another Product
+          </button>
         </div>
       )}
+    </div>
+  );
+}
+
+// SUB-COMPONENTS
+function ChoiceCard({ icon, title, desc, color, onClick }) {
+  const themes = {
+    blue: "hover:border-blue-500 hover:shadow-blue-50 bg-blue-50 text-blue-600",
+    emerald: "hover:border-emerald-500 hover:shadow-emerald-50 bg-emerald-50 text-emerald-600"
+  };
+  return (
+    <div onClick={onClick} className="bg-white p-8 rounded-[1.5rem] border border-slate-100 transition-all cursor-pointer group shadow-sm hover:-translate-y-1">
+      <div className={`w-12 h-12 rounded-xl flex items-center justify-center mb-5 transition-transform group-hover:scale-110 ${themes[color]}`}>
+        {icon}
+      </div>
+      <h3 className="text-lg font-black mb-1 text-slate-900">{title}</h3>
+      <p className="text-slate-400 text-xs leading-relaxed">{desc}</p>
+    </div>
+  );
+}
+
+function IngredientItem({ name, function: func, status, risk, citation }) {
+  const statusStyles = {
+    safe: "bg-emerald-50 text-emerald-600 border-emerald-100",
+    toxic: "bg-red-50 text-red-600 border-red-100",
+    irritant: "bg-amber-50 text-amber-600 border-amber-100"
+  };
+  return (
+    <div className="bg-white border border-slate-100 p-5 rounded-2xl flex items-start justify-between gap-4 hover:shadow-md transition-all">
+      <div className="flex gap-4 min-w-0">
+        <div className={`mt-1 p-2 rounded-lg shrink-0 ${statusStyles[status]}`}>
+          {status === 'safe' ? <CheckCircle2 size={18} /> : <ShieldAlert size={18} />}
+        </div>
+        <div className="min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <h4 className="font-bold text-slate-900 text-sm truncate">{name}</h4>
+            <span className="text-[8px] bg-slate-100 text-slate-400 px-1.5 py-0.5 rounded font-black uppercase">{func}</span>
+          </div>
+          <p className="text-[10px] text-slate-500 leading-normal"><span className="font-bold">Risk:</span> {risk}</p>
+        </div>
+      </div>
+      <div className="flex flex-col items-end gap-1 shrink-0">
+        <span className={`px-2 py-0.5 rounded text-[8px] font-black uppercase border ${statusStyles[status]}`}>{status}</span>
+        <div className="flex items-center gap-1 text-slate-300 text-[8px] font-bold">
+          <BookOpen size={10} /> {citation}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ScanningProgress({ color, label }) {
+  const colors = { blue: "bg-blue-500", emerald: "bg-emerald-500" };
+  return (
+    <div className="py-10 text-center animate-in fade-in">
+      <div className="relative w-16 h-16 mx-auto mb-6">
+        <div className={`absolute inset-0 rounded-full animate-ping opacity-20 ${colors[color]}`}></div>
+        <div className={`absolute inset-0 flex items-center justify-center ${color === 'blue' ? 'text-blue-600' : 'text-emerald-600'}`}>
+          <RefreshCw size={32} className="animate-spin duration-[3000ms]" />
+        </div>
+      </div>
+      <h3 className="text-sm font-black text-slate-900 mb-1">{label}</h3>
+      <p className="text-[9px] text-slate-400 font-bold uppercase tracking-[0.2em] animate-pulse">Running Cloud Inference...</p>
     </div>
   );
 }

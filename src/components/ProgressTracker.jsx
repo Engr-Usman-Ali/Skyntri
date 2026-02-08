@@ -1,41 +1,39 @@
 import React, { useState } from "react";
 import { 
-  TrendingUp, Calendar, Zap, Activity, 
-  ChevronRight, Target, Flame, CheckCircle2,
-  Upload, X, Camera, Loader2, AlertTriangle, Info
+  TrendingUp, Zap, Activity, ChevronRight, CheckCircle2,
+  Upload, Camera, Loader2, AlertTriangle
 } from "lucide-react";
-import { AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
+import { XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, LineChart, Line } from 'recharts';
 
-// --- MOCK DATA (Reflecting REQ-5.7 Trends) ---
+// --- MOCK DATA ---
 const progressHistory = [
-  { day: 'Day 1', redness: 85, lesions: 90, texture: 40 },
-  { day: 'Day 7', redness: 70, lesions: 80, texture: 45 },
-  { day: 'Day 14', redness: 55, lesions: 60, texture: 60 },
-  { day: 'Day 21', redness: 40, lesions: 35, texture: 75 },
-  { day: 'Day 28', redness: 32, lesions: 20, texture: 88 },
+  { day: 'D1', redness: 85, lesions: 90, texture: 40 },
+  { day: 'D7', redness: 70, lesions: 80, texture: 45 },
+  { day: 'D14', redness: 55, lesions: 60, texture: 60 },
+  { day: 'D21', redness: 40, lesions: 35, texture: 75 },
+  { day: 'D28', redness: 32, lesions: 20, texture: 88 },
 ];
 
 export default function ProgressTracker() {
   const [showUpload, setShowUpload] = useState(false);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   
-  // Simulation for REQ-5.6 (Percentage Improvement)
   const overallImprovement = 68; 
-  const isDeteriorating = false; // Toggle for REQ-5.10
+  const isDeteriorating = false;
 
   const handleAnalysisTrigger = () => {
     setIsAnalyzing(true);
     setTimeout(() => {
       setIsAnalyzing(false);
       setShowUpload(false);
-    }, 3000);
+    }, 2500);
   };
 
   if (showUpload) {
     return (
-      <div className="max-w-4xl mx-auto animate-in fade-in slide-in-from-bottom-6 duration-500">
-        <button onClick={() => setShowUpload(false)} className="mb-6 font-black text-slate-400 hover:text-slate-900 transition-all flex items-center gap-2">
-          <ChevronRight size={20} className="rotate-180"/> BACK TO ANALYTICS
+      <div className="max-w-3xl mx-auto animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <button onClick={() => setShowUpload(false)} className="mb-6 font-bold text-slate-400 hover:text-blue-600 transition-all flex items-center gap-2 text-xs">
+          <ChevronRight size={14} className="rotate-180"/> BACK TO ANALYTICS
         </button>
         <ProgressUploadUI onComplete={handleAnalysisTrigger} isAnalyzing={isAnalyzing} />
       </div>
@@ -43,78 +41,77 @@ export default function ProgressTracker() {
   }
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-700">
+    <div className="space-y-6 animate-in fade-in duration-500 pb-10">
       
-      {/* 1. TOP HEADER & SUMMARY */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-end gap-6">
+      {/* 1. HEADER */}
+      <div className="flex justify-between items-center">
         <div>
-          <h2 className="text-4xl font-black text-slate-900 tracking-tight">Weekly Progress</h2>
-          <p className="text-slate-400 font-bold mt-1 uppercase tracking-widest text-[10px]">Clinical Image Analysis & Metrics</p>
+          <h2 className="text-2xl font-black text-slate-900 tracking-tight">Recovery Progress</h2>
+          <p className="text-slate-400 text-xs font-medium">Computer Vision Trend Analysis</p>
         </div>
         <button 
           onClick={() => setShowUpload(true)}
-          className="bg-blue-600 text-white px-8 py-4 rounded-2xl font-black text-sm hover:bg-slate-900 transition-all shadow-xl shadow-blue-100 flex items-center gap-3 active:scale-95"
+          className="bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-xs hover:bg-slate-900 transition-all shadow-md shadow-blue-100 flex items-center gap-2"
         >
-          <Camera size={18}/> New Weekly Scan
+          <Camera size={14}/> Weekly Scan
         </button>
       </div>
 
-      {/* 2. CLINICAL STATUS CARDS (REQ-5.3, 5.4, 5.5, 5.6) */}
-      <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-        <AnalysisMetric label="Overall Improvement" val={`${overallImprovement}%`} trend="+5%" color="text-emerald-600" bg="bg-emerald-50" />
-        <AnalysisMetric label="Redness Reduction" val="62%" trend="-12%" color="text-blue-600" bg="bg-blue-50" />
-        <AnalysisMetric label="Lesion Surface" val="-75%" trend="Significant" color="text-orange-600" bg="bg-orange-50" />
-        <AnalysisMetric label="Texture Smoothness" val="+40%" trend="Feature Ext." color="text-purple-600" bg="bg-purple-50" />
+      {/* 2. METRIC GRID */}
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <AnalysisMetric label="Improvement" val={`${overallImprovement}%`} color="text-emerald-600" />
+        <AnalysisMetric label="Redness" val="-62%" color="text-blue-600" />
+        <AnalysisMetric label="Lesions" val="-75%" color="text-orange-600" />
+        <AnalysisMetric label="Texture" val="+40%" color="text-purple-600" />
       </div>
 
-      {/* 3. FEEDBACK SYSTEM (REQ-5.9 & 5.10) */}
-      <div className={`p-6 rounded-[2rem] border flex items-center gap-5 ${isDeteriorating ? "bg-red-50 border-red-100" : "bg-emerald-50 border-emerald-100"}`}>
-        <div className={`w-14 h-14 rounded-2xl flex items-center justify-center ${isDeteriorating ? "bg-red-500 text-white" : "bg-emerald-500 text-white"}`}>
-          {isDeteriorating ? <AlertTriangle size={28}/> : <CheckCircle2 size={28}/>}
+      {/* 3. FEEDBACK SYSTEM */}
+      <div className={`p-5 rounded-2xl border flex items-center gap-4 ${isDeteriorating ? "bg-red-50 border-red-100" : "bg-emerald-50 border-emerald-100"}`}>
+        <div className={`w-10 h-10 rounded-xl flex items-center justify-center shrink-0 ${isDeteriorating ? "bg-red-500 text-white" : "bg-emerald-500 text-white"}`}>
+          {isDeteriorating ? <AlertTriangle size={20}/> : <CheckCircle2 size={20}/>}
         </div>
-        <div className="flex-1">
-          <h4 className={`font-black text-lg ${isDeteriorating ? "text-red-900" : "text-emerald-900"}`}>
-            {isDeteriorating ? "Deterioration Detected" : "Excellent Progress, Husnain!"}
+        <div>
+          <h4 className={`font-bold text-sm ${isDeteriorating ? "text-red-900" : "text-emerald-900"}`}>
+            {isDeteriorating ? "Alert Detected" : "Excellent Progress!"}
           </h4>
-          <p className={`text-sm font-medium ${isDeteriorating ? "text-red-700" : "text-emerald-700"}`}>
+          <p className={`text-[11px] font-medium leading-tight ${isDeteriorating ? "text-red-700" : "text-emerald-700"}`}>
             {isDeteriorating 
-              ? "Significant increase in redness detected. We recommend consulting a professional dermatologist immediately." 
-              : "Your skin texture has improved by 40% using the current routine. Keep maintaining your hydration levels!"}
+              ? "Redness levels have spiked. Consider pausing current active ingredients." 
+              : "Texture has improved by 40%. Your moisture barrier looks healthy."}
           </p>
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
-        
-        {/* 4. SIDE-BY-SIDE COMPARISON (REQ-5.2 & 5.8) */}
-        <div className="lg:col-span-5 bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+        {/* 4. COMPARISON */}
+        <div className="lg:col-span-5 bg-white p-6 rounded-[2rem] border border-slate-100">
           <div className="flex justify-between items-center mb-6">
-            <h3 className="font-black text-lg text-slate-900">Side-by-Side View</h3>
-            <span className="text-[10px] font-black text-slate-400 uppercase tracking-widest bg-slate-50 px-3 py-1 rounded-full">OpenCV Sync</span>
+            <h3 className="font-bold text-sm text-slate-900 uppercase tracking-wider">Visual Sync</h3>
+            <span className="text-[9px] font-black text-slate-400 bg-slate-50 px-2 py-0.5 rounded-md">BASELINE VS CURRENT</span>
           </div>
-          <div className="grid grid-cols-2 gap-4">
-            <ComparisonCard label="Baseline" date="Jan 10" img="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=400" />
-            <ComparisonCard label="Current" date="Feb 07" img="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&q=80&w=400" />
+          <div className="grid grid-cols-2 gap-3">
+            <ComparisonCard label="Day 1" date="Jan 10" img="https://images.unsplash.com/photo-1512290923902-8a9f81dc236c?auto=format&fit=crop&q=80&w=400" />
+            <ComparisonCard label="Today" date="Feb 07" img="https://images.unsplash.com/photo-1616394584738-fc6e612e71b9?auto=format&fit=crop&q=80&w=400" />
           </div>
         </div>
 
-        {/* 5. TREND ANALYTICS (REQ-5.7) */}
-        <div className="lg:col-span-7 bg-white p-8 rounded-[3rem] border border-slate-100 shadow-sm">
-          <h3 className="font-black text-lg text-slate-900 mb-8">Recovery Trends</h3>
-          <div className="h-72 w-full">
+        {/* 5. CHART */}
+        <div className="lg:col-span-7 bg-white p-6 rounded-[2rem] border border-slate-100">
+          <h3 className="font-bold text-sm text-slate-900 uppercase tracking-wider mb-6">Dermal Trends</h3>
+          <div className="h-48 w-full">
             <ResponsiveContainer width="100%" height="100%">
               <LineChart data={progressHistory}>
                 <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#f1f5f9" />
-                <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fontSize: 10, fontWeight: 'bold', fill: '#94a3b8'}} />
+                <XAxis dataKey="day" axisLine={false} tickLine={false} tick={{fontSize: 9, fontWeight: 'bold', fill: '#94a3b8'}} />
                 <YAxis hide />
-                <Tooltip contentStyle={{borderRadius: '20px', border: 'none', boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)'}} />
-                <Line type="monotone" dataKey="redness" stroke="#2563eb" strokeWidth={4} dot={{r: 6, fill: '#2563eb', strokeWidth: 2, stroke: '#fff'}} />
-                <Line type="monotone" dataKey="lesions" stroke="#f97316" strokeWidth={4} dot={{r: 6, fill: '#f97316', strokeWidth: 2, stroke: '#fff'}} />
-                <Line type="monotone" dataKey="texture" stroke="#a855f7" strokeWidth={4} dot={{r: 6, fill: '#a855f7', strokeWidth: 2, stroke: '#fff'}} />
+                <Tooltip contentStyle={{borderRadius: '12px', border: 'none', fontSize: '10px', boxShadow: '0 10px 15px -3px rgb(0 0 0 / 0.1)'}} />
+                <Line type="monotone" dataKey="redness" stroke="#2563eb" strokeWidth={3} dot={{r: 4, fill: '#2563eb'}} />
+                <Line type="monotone" dataKey="lesions" stroke="#f97316" strokeWidth={3} dot={{r: 4, fill: '#f97316'}} />
+                <Line type="monotone" dataKey="texture" stroke="#a855f7" strokeWidth={3} dot={{r: 4, fill: '#a855f7'}} />
               </LineChart>
             </ResponsiveContainer>
           </div>
-          <div className="flex gap-6 mt-6 justify-center">
+          <div className="flex gap-4 mt-4 justify-center">
             <LegendItem color="bg-blue-600" label="Redness" />
             <LegendItem color="bg-orange-500" label="Lesions" />
             <LegendItem color="bg-purple-500" label="Texture" />
@@ -125,39 +122,39 @@ export default function ProgressTracker() {
   );
 }
 
-// --- SUB-COMPONENTS FOR CLEANER CODE ---
+// --- SUB-COMPONENTS ---
 
 function ProgressUploadUI({ onComplete, isAnalyzing }) {
   const [file, setFile] = useState(null);
 
   return (
-    <div className="bg-white rounded-[3rem] border border-slate-100 p-12 text-center relative overflow-hidden">
+    <div className="bg-white rounded-[2rem] border border-slate-100 p-10 text-center relative overflow-hidden shadow-sm">
       {isAnalyzing && (
         <div className="absolute inset-0 bg-white/90 backdrop-blur-md z-50 flex flex-col items-center justify-center">
-          <Loader2 className="animate-spin text-blue-600 mb-6" size={50} />
-          <h3 className="text-2xl font-black text-slate-900">Clinical Processing...</h3>
-          <p className="text-slate-400 font-bold uppercase tracking-widest text-xs mt-2">Histogram Analysis & Feature Extraction</p>
+          <Loader2 className="animate-spin text-blue-600 mb-4" size={32} />
+          <h3 className="text-lg font-black text-slate-900">ML Feature Extraction...</h3>
+          <p className="text-slate-400 font-bold uppercase tracking-[0.2em] text-[9px] mt-1">Histogram Matching Active</p>
         </div>
       )}
 
       {!file ? (
-        <>
-          <div className="w-24 h-24 bg-blue-50 rounded-[2.5rem] flex items-center justify-center mx-auto mb-8 text-blue-600">
-            <Upload size={40} />
+        <div className="max-w-xs mx-auto">
+          <div className="w-16 h-16 bg-blue-50 rounded-2xl flex items-center justify-center mx-auto mb-6 text-blue-600">
+            <Upload size={28} />
           </div>
-          <h3 className="text-2xl font-black text-slate-900 mb-3">Upload Weekly Scan</h3>
-          <p className="text-slate-400 font-medium mb-10 max-w-sm mx-auto">Please ensure high-quality lighting for accurate OpenCV color histogram analysis.</p>
-          <label className="bg-slate-900 text-white px-12 py-5 rounded-2xl font-black text-sm cursor-pointer hover:bg-blue-600 transition-all shadow-2xl inline-block">
-            Choose Image
+          <h3 className="text-xl font-black text-slate-900 mb-2">Weekly Update</h3>
+          <p className="text-slate-400 text-xs font-medium mb-8">Maintain consistent lighting for accurate delta analysis.</p>
+          <label className="bg-slate-900 text-white px-8 py-3.5 rounded-xl font-bold text-xs cursor-pointer hover:bg-blue-600 transition-all shadow-md inline-block">
+            Choose Scan
             <input type="file" className="hidden" onChange={(e) => setFile(URL.createObjectURL(e.target.files[0]))} />
           </label>
-        </>
+        </div>
       ) : (
         <div className="animate-in zoom-in-95">
-          <img src={file} className="w-full max-h-[400px] object-cover rounded-[2.5rem] border-8 border-slate-50 mb-8" alt="Preview" />
-          <div className="flex gap-4 max-w-md mx-auto">
-            <button onClick={onComplete} className="flex-1 bg-emerald-500 text-white py-5 rounded-2xl font-black shadow-xl hover:bg-emerald-600 transition-all">Submit for Analysis</button>
-            <button onClick={() => setFile(null)} className="px-8 bg-slate-100 text-slate-400 rounded-2xl font-black hover:text-red-500 transition-all">Reset</button>
+          <img src={file} className="w-full max-h-60 object-cover rounded-2xl border-4 border-slate-50 mb-6" alt="Preview" />
+          <div className="flex gap-3 max-w-xs mx-auto">
+            <button onClick={onComplete} className="flex-1 bg-emerald-500 text-white py-3 rounded-xl font-bold text-xs shadow-md hover:bg-emerald-600 transition-all">Submit Scan</button>
+            <button onClick={() => setFile(null)} className="px-5 bg-slate-50 text-slate-400 rounded-xl font-bold text-xs hover:text-red-500 transition-all">Reset</button>
           </div>
         </div>
       )}
@@ -165,27 +162,24 @@ function ProgressUploadUI({ onComplete, isAnalyzing }) {
   );
 }
 
-function AnalysisMetric({ label, val, trend, color, bg }) {
+function AnalysisMetric({ label, val, color }) {
   return (
-    <div className="bg-white p-6 rounded-[2.5rem] border border-slate-50 shadow-sm">
-      <p className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-1">{label}</p>
-      <div className="flex items-baseline gap-2">
-        <h4 className={`text-2xl font-black ${color}`}>{val}</h4>
-        <span className="text-[10px] font-bold text-slate-400">{trend}</span>
-      </div>
+    <div className="bg-white p-4 rounded-2xl border border-slate-50 shadow-sm">
+      <p className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-1">{label}</p>
+      <h4 className={`text-xl font-black ${color}`}>{val}</h4>
     </div>
   );
 }
 
 function ComparisonCard({ label, date, img }) {
   return (
-    <div className="space-y-3">
-      <div className="aspect-[3/4] rounded-[2rem] overflow-hidden shadow-md border-4 border-slate-50">
-        <img src={img} className="w-full h-full object-cover" alt={label} />
+    <div className="space-y-2">
+      <div className="aspect-[4/5] rounded-xl overflow-hidden shadow-sm border border-slate-100">
+        <img src={img} className="w-full h-full object-cover grayscale-[0.2]" alt={label} />
       </div>
       <div className="text-center">
-        <p className="text-xs font-black text-slate-900 uppercase">{label}</p>
-        <p className="text-[10px] font-bold text-slate-400">{date}</p>
+        <p className="text-[10px] font-black text-slate-900 uppercase">{label}</p>
+        <p className="text-[9px] font-bold text-slate-400">{date}</p>
       </div>
     </div>
   );
@@ -193,9 +187,9 @@ function ComparisonCard({ label, date, img }) {
 
 function LegendItem({ color, label }) {
   return (
-    <div className="flex items-center gap-2">
-      <div className={`w-3 h-3 rounded-full ${color}`} />
-      <span className="text-[10px] font-black text-slate-400 uppercase tracking-tighter">{label}</span>
+    <div className="flex items-center gap-1.5">
+      <div className={`w-2 h-2 rounded-full ${color}`} />
+      <span className="text-[9px] font-bold text-slate-400 uppercase tracking-tight">{label}</span>
     </div>
   );
 }

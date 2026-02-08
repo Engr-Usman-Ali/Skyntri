@@ -1,213 +1,188 @@
 import React, { useState } from "react";
 import { 
   User, Shield, CreditCard, Save, MapPin, 
-  CheckCircle2, X, Smartphone, BellRing, PencilLine, 
-  ChevronRight, ArrowRight
+  CheckCircle2, X, BellRing, PencilLine, RotateCcw, AlertCircle
 } from "lucide-react";
 
-export default function Settings() {
+export default function Settings({ setActiveTab }) {
+  // 1. Initial Data (The "Original" state)
+  const originalData = {
+    fullName: "Husnain",
+    email: "husnain@example.com",
+    address: "House #123, Mirpur, Azad Kashmir",
+    easypaisa: "0312 3456789"
+  };
+
+  const [formData, setFormData] = useState(originalData);
   const [activeSubTab, setActiveSubTab] = useState("Profile");
   const [showSavedMessage, setShowSavedMessage] = useState(false);
-  
-  // State for Easypaisa Number
-  const [easypaisaNo, setEasypaisaNo] = useState("0312 3456789");
+  const [showConfirmExit, setShowConfirmExit] = useState(false);
   const [isEditingNo, setIsEditingNo] = useState(false);
 
-  // State for Toggles
-  const [notifications, setNotifications] = useState({
-    email: true,
-    marketplace: false,
-    security: true
-  });
+  // Check if user has changed anything
+  const hasChanges = JSON.stringify(formData) !== JSON.stringify(originalData);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+
+  // Close Logic
+  const handleExitRequest = () => {
+    if (hasChanges) {
+      setShowConfirmExit(true); // Warning if changes exist
+    } else {
+      setActiveTab("Overview"); // Exit immediately if no changes
+    }
+  };
 
   const handleSave = () => {
     setShowSavedMessage(true);
-    setIsEditingNo(false);
-    setTimeout(() => setShowSavedMessage(false), 3000);
-  };
-
-  const toggleNotify = (key) => {
-    setNotifications(prev => ({ ...prev, [key]: !prev[key] }));
+    setTimeout(() => {
+      setShowSavedMessage(false);
+      setActiveTab("Overview"); // Close settings after saving
+    }, 1500);
   };
 
   return (
-    <div className="animate-in fade-in duration-500 relative pb-10">
+    <div className="animate-in fade-in duration-500 relative pb-20 max-w-6xl mx-auto px-2">
       
-      {/* --- SUCCESS TOAST --- */}
-      {showSavedMessage && (
-        <div className="fixed top-24 right-10 z-[200] animate-in slide-in-from-right-10 duration-300">
-          <div className="bg-slate-900 text-white px-6 py-4 rounded-2xl shadow-2xl flex items-center gap-3 border border-white/10">
-            <div className="bg-emerald-500 p-1 rounded-full text-white"><CheckCircle2 size={16} /></div>
-            <span className="font-bold text-sm">Settings updated!</span>
-            <button onClick={() => setShowSavedMessage(false)} className="ml-4 opacity-50 hover:opacity-100"><X size={14} /></button>
+      {/* --- TOP HEADER BAR --- */}
+      <div className="flex justify-between items-center mb-8">
+        <div>
+          <h2 className="text-[10px] font-black text-slate-400 uppercase tracking-[0.2em]">Management</h2>
+          <p className="text-xl font-black text-slate-900">Account Settings</p>
+        </div>
+        
+        {/* ENHANCED EXIT BUTTON (Red on hover) */}
+        <button 
+          onClick={handleExitRequest}
+          className="group flex items-center gap-2 px-4 py-2 bg-white border border-slate-100 rounded-xl hover:border-red-100 hover:bg-red-50 transition-all shadow-sm"
+        >
+          <span className="text-[10px] font-black text-slate-400 group-hover:text-red-500 uppercase tracking-widest">Close</span>
+          <X size={18} className="text-slate-400 group-hover:text-red-500" />
+        </button>
+      </div>
+
+      {/* --- CONFIRM EXIT MODAL --- */}
+      {showConfirmExit && (
+        <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-[2000] flex items-center justify-center p-4">
+          <div className="bg-white rounded-[2rem] p-8 max-w-sm w-full shadow-2xl animate-in zoom-in-95">
+            <div className="w-12 h-12 bg-amber-50 text-amber-500 rounded-2xl flex items-center justify-center mb-4">
+              <AlertCircle size={24} />
+            </div>
+            <h3 className="text-xl font-black text-slate-900 mb-2">Unsaved Changes</h3>
+            <p className="text-slate-500 text-sm font-medium mb-6">You have edited your profile. Are you sure you want to exit without saving?</p>
+            <div className="flex flex-col gap-2">
+              <button onClick={() => setActiveTab("Overview")} className="w-full py-3.5 rounded-xl font-bold text-xs text-white bg-red-500 hover:bg-red-600 transition-all shadow-lg shadow-red-100">
+                Discard & Exit
+              </button>
+              <button onClick={() => setShowConfirmExit(false)} className="w-full py-3.5 rounded-xl font-bold text-xs text-slate-500 bg-slate-100 hover:bg-slate-200 transition-all">
+                Continue Editing
+              </button>
+            </div>
           </div>
         </div>
       )}
 
-      <div className="flex flex-col lg:flex-row gap-10">
-        
-        {/* LEFT NAV - CLINICAL STYLE */}
-        <div className="w-full lg:w-72 space-y-2">
-          <SettingsNavLink label="Profile" icon={<User size={18}/>} active={activeSubTab === "Profile"} onClick={() => setActiveSubTab("Profile")} />
-          <SettingsNavLink label="Payments" icon={<CreditCard size={18}/>} active={activeSubTab === "Payments"} onClick={() => setActiveSubTab("Payments")} />
-          <SettingsNavLink label="Notifications" icon={<BellRing size={18}/>} active={activeSubTab === "Notifications"} onClick={() => setActiveSubTab("Notifications")} />
-          <SettingsNavLink label="Security" icon={<Shield size={18}/>} active={activeSubTab === "Security"} onClick={() => setActiveSubTab("Security")} />
+      {/* --- MAIN CONTENT --- */}
+      <div className="flex flex-col lg:flex-row gap-8">
+        <div className="w-full lg:w-60 flex lg:flex-col gap-1.5 overflow-x-auto lg:overflow-visible pb-2 lg:pb-0 custom-scrollbar">
+          <SettingsNavLink label="Profile" icon={<User size={16}/>} active={activeSubTab === "Profile"} onClick={() => setActiveSubTab("Profile")} />
+          <SettingsNavLink label="Payments" icon={<CreditCard size={16}/>} active={activeSubTab === "Payments"} onClick={() => setActiveSubTab("Payments")} />
+          <SettingsNavLink label="Security" icon={<Shield size={16}/>} active={activeSubTab === "Security"} onClick={() => setActiveSubTab("Security")} />
         </div>
 
-        {/* RIGHT CONTENT PANEL */}
-        <div className="flex-1 bg-white rounded-[3rem] border border-slate-100 p-8 md:p-12 shadow-sm min-h-[600px]">
-          
-          {/* PROFILE */}
-          {activeSubTab === "Profile" && (
-            <div className="space-y-10 animate-in fade-in duration-300">
-              <div>
-                <h3 className="text-3xl font-black text-slate-900">Personal Info</h3>
-                <p className="text-slate-400 font-medium">Manage your contact and shipping details.</p>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-                <InputGroup label="Full Name" val="Husnain" />
-                <InputGroup label="Email" val="husnain@example.com" />
-                <div className="md:col-span-2 space-y-3">
-                  <label className="text-xs font-black text-slate-400 uppercase tracking-widest flex items-center gap-2"><MapPin size={14}/> Shipping Address</label>
-                  <textarea className="w-full p-6 bg-slate-50 border border-slate-100 rounded-[2rem] outline-none focus:ring-2 focus:ring-blue-500 min-h-[140px] font-medium" defaultValue="House #123, Mirpur, Azad Kashmir" />
+        <div className="flex-1 bg-white rounded-[2rem] border border-slate-100 p-8 md:p-10 shadow-sm min-h-[500px] flex flex-col relative">
+          <div className="flex-1">
+            {activeSubTab === "Profile" && (
+              <div className="space-y-8 animate-in fade-in">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <InputGroup label="Full Name" name="fullName" val={formData.fullName} onChange={handleChange} />
+                  <InputGroup label="Email" name="email" val={formData.email} onChange={handleChange} />
+                  <div className="md:col-span-2 space-y-2">
+                    <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">Address</label>
+                    <textarea name="address" value={formData.address} onChange={handleChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold outline-none focus:bg-white min-h-[100px]" />
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            )}
 
-          {/* PAYMENTS - REDESIGNED PREMIUM CARD */}
-          {activeSubTab === "Payments" && (
-            <div className="space-y-10 animate-in fade-in duration-300">
-              <div>
-                <h3 className="text-3xl font-black text-slate-900">Payment Wallet</h3>
-                <p className="text-slate-400 font-medium">Your primary checkout method for marketplace orders.</p>
-              </div>
-
-              {/* THE WALLET CARD */}
-              <div className="relative group overflow-hidden bg-slate-900 rounded-[3rem] p-10 text-white shadow-2xl shadow-emerald-900/20 transition-all hover:-translate-y-1">
-                {/* Background Decor */}
-                <div className="absolute top-[-20%] right-[-10%] w-64 h-64 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
-                
-                <div className="relative z-10 flex flex-col gap-10">
-                  <div className="flex justify-between items-start">
-                    <div className="w-20 h-20 bg-white rounded-[1.5rem] flex items-center justify-center overflow-hidden border-4 border-slate-800 shadow-xl">
-                      <img 
-                        src="https://cdn.aptoide.com/imgs/5/a/d/5ad0bd9f9704075be3dd8efdbca6313b_icon.jpg?w=128" 
-                        alt="Easypaisa" 
-                        className="w-full h-full object-cover"
-                      />
+            {/* PAYMENTS */}
+            {activeSubTab === "Payments" && (
+              <div className="space-y-8 animate-in fade-in">
+                <div className="bg-slate-900 rounded-[2rem] p-8 text-white shadow-xl max-w-md relative overflow-hidden group">
+                  <div className="relative z-10 space-y-8">
+                    <div className="w-12 h-12 bg-white rounded-xl flex items-center justify-center p-1.5">
+                      <img src="https://cdn.aptoide.com/imgs/5/a/d/5ad0bd9f9704075be3dd8efdbca6313b_icon.jpg?w=128" alt="Easypaisa" className="w-full h-full object-contain" />
                     </div>
-                    <span className="bg-emerald-500/20 text-emerald-400 px-4 py-2 rounded-full text-[10px] font-black uppercase tracking-widest border border-emerald-500/30">Verified Account</span>
-                  </div>
-
-                  <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                    <div className="space-y-2">
-                      <p className="text-slate-400 text-xs font-black uppercase tracking-tighter">Easypaisa Number</p>
+                    <div>
+                      <p className="text-slate-500 text-[10px] font-black uppercase tracking-widest mb-1">Account Number</p>
                       {isEditingNo ? (
-                        <input 
-                          autoFocus
-                          value={easypaisaNo}
-                          onChange={(e) => setEasypaisaNo(e.target.value)}
-                          className="bg-slate-800 border-2 border-emerald-500/50 rounded-2xl p-3 text-2xl font-black text-white outline-none w-full max-w-[280px]"
-                        />
+                        <input autoFocus name="easypaisa" value={formData.easypaisa} onChange={handleChange} className="bg-slate-800 border-b-2 border-emerald-500 p-1 text-xl font-black text-white outline-none w-full" />
                       ) : (
-                        <div className="flex items-center gap-4">
-                          <Smartphone size={32} className="text-emerald-500" /> {/* LARGER ICON */}
-                          <p className="text-3xl font-black tracking-tight">{easypaisaNo}</p>
-                        </div>
+                        <p className="text-2xl font-black tracking-tight">{formData.easypaisa}</p>
                       )}
                     </div>
-
-                    {/* CHANGE BUTTON - NOW INSIDE THE CARD */}
-                    <button 
-                      onClick={() => setIsEditingNo(!isEditingNo)}
-                      className={`flex items-center gap-2 px-8 py-4 rounded-2xl font-black text-sm transition-all ${
-                        isEditingNo 
-                        ? 'bg-emerald-500 text-white' 
-                        : 'bg-white/10 text-white hover:bg-white/20 border border-white/10'
-                      }`}
-                    >
-                      {isEditingNo ? <CheckCircle2 size={18}/> : <PencilLine size={18}/>}
-                      {isEditingNo ? "Save Number" : "Change Number"}
+                    <button onClick={() => setIsEditingNo(!isEditingNo)} className="text-xs font-black text-slate-400 hover:text-white transition-all underline underline-offset-4">
+                      {isEditingNo ? "Save Number" : "Edit Account"}
                     </button>
                   </div>
                 </div>
               </div>
-              
-              <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 flex items-center gap-4">
-                 <div className="w-2 h-2 bg-emerald-500 rounded-full animate-pulse" />
-                 <p className="text-xs font-bold text-slate-500 italic">Your wallet is ready for 1-click marketplace checkout.</p>
-              </div>
-            </div>
-          )}
+            )}
+          </div>
 
-          {/* NOTIFICATIONS */}
-          {activeSubTab === "Notifications" && (
-            <div className="space-y-8 animate-in fade-in duration-300">
-              <h3 className="text-3xl font-black text-slate-900">Communications</h3>
-              <div className="grid grid-cols-1 gap-4">
-                <ToggleItem label="Email Updates" desc="Analysis reports & clinical insights" active={notifications.email} onClick={() => toggleNotify('email')} />
-                <ToggleItem label="Store Notifications" desc="Flash sales & skincare recommendations" active={notifications.marketplace} onClick={() => toggleNotify('marketplace')} />
-                <ToggleItem label="Security Alerts" desc="Keep your skin data secure" active={notifications.security} onClick={() => toggleNotify('security')} />
-              </div>
-            </div>
-          )}
-
-          {/* SECURITY */}
-          {activeSubTab === "Security" && (
-            <div className="space-y-8 animate-in fade-in">
-              <h3 className="text-3xl font-black text-slate-900">Security</h3>
-              <div className="p-10 border border-slate-100 rounded-[3rem] bg-slate-50 flex items-center justify-between group cursor-pointer hover:bg-white transition-all">
-                <div>
-                  <p className="font-black text-slate-900 text-xl">Account Password</p>
-                  <p className="text-slate-400 font-medium">Update your password regularly for safety.</p>
-                </div>
-                <ArrowRight className="text-slate-300 group-hover:text-blue-600 transition-all group-hover:translate-x-2" size={24} />
-              </div>
-            </div>
-          )}
-
-          {/* GLOBAL SAVE */}
-          <div className="mt-16 pt-8 border-t border-slate-100 flex justify-end">
-            <button onClick={handleSave} className="bg-slate-900 text-white px-12 py-5 rounded-[2rem] font-black text-lg hover:bg-emerald-500 transition-all shadow-2xl active:scale-95 flex items-center gap-3">
-              <Save size={20} /> Update All Settings
+          {/* --- FOOTER ACTION BUTTONS --- */}
+          <div className="mt-12 pt-6 border-t border-slate-100 flex flex-col md:flex-row justify-end gap-3">
+            <button 
+              onClick={handleExitRequest}
+              className={`flex items-center justify-center gap-2 px-8 py-4 rounded-xl font-black text-xs transition-all ${
+                hasChanges 
+                ? "bg-red-50 text-red-500 hover:bg-red-100" 
+                : "bg-slate-50 text-slate-400 hover:text-slate-900"
+              }`}
+            >
+              <RotateCcw size={16} /> Discard & Exit
+            </button>
+            <button 
+              onClick={handleSave}
+              className="flex items-center justify-center gap-2 bg-slate-900 text-white px-10 py-4 rounded-xl font-black text-xs hover:bg-emerald-500 transition-all shadow-lg active:scale-95"
+            >
+              <Save size={16} /> Save Changes
             </button>
           </div>
+
+          {/* SUCCESS OVERLAY */}
+          {showSavedMessage && (
+            <div className="absolute inset-0 bg-white/95 backdrop-blur-md rounded-[2rem] flex flex-col items-center justify-center z-50 animate-in fade-in">
+              <div className="w-20 h-20 bg-emerald-50 text-emerald-500 rounded-full flex items-center justify-center mb-4 animate-bounce">
+                <CheckCircle2 size={40} />
+              </div>
+              <h4 className="text-2xl font-black text-slate-900">Success!</h4>
+              <p className="text-slate-400 font-medium">Your settings have been updated.</p>
+            </div>
+          )}
         </div>
       </div>
     </div>
   );
 }
 
-// --- COMPONENTS ---
-
+// --- HELPERS ---
 function SettingsNavLink({ label, icon, active, onClick }) {
   return (
-    <button onClick={onClick} className={`w-full flex items-center gap-4 px-8 py-5 rounded-[2.5rem] font-black transition-all ${active ? "bg-slate-900 text-white shadow-2xl translate-x-2" : "text-slate-400 hover:text-slate-900 hover:bg-white"}`}>
+    <button onClick={onClick} className={`flex items-center gap-3 px-6 py-4 rounded-xl font-bold text-sm transition-all whitespace-nowrap ${active ? "bg-slate-900 text-white shadow-lg shadow-slate-200" : "text-slate-400 hover:text-slate-900 hover:bg-white"}`}>
       {icon} {label}
     </button>
   );
 }
 
-function InputGroup({ label, val }) {
+function InputGroup({ label, name, val, onChange }) {
   return (
-    <div className="space-y-3">
-      <label className="text-xs font-black text-slate-400 uppercase tracking-widest">{label}</label>
-      <input className="w-full p-5 bg-slate-50 border border-slate-100 rounded-[2rem] outline-none focus:ring-2 focus:ring-blue-500 font-bold text-slate-900" defaultValue={val} />
-    </div>
-  );
-}
-
-function ToggleItem({ label, desc, active, onClick }) {
-  return (
-    <div onClick={onClick} className="p-8 border border-slate-100 rounded-[2.5rem] flex justify-between items-center cursor-pointer hover:bg-slate-50 transition-all">
-      <div>
-        <p className="font-black text-slate-900 text-lg">{label}</p>
-        <p className="text-sm text-slate-400 font-medium">{desc}</p>
-      </div>
-      <div className={`w-14 h-7 rounded-full relative transition-all duration-300 ${active ? 'bg-emerald-500 shadow-lg shadow-emerald-100' : 'bg-slate-200'}`}>
-        <div className={`absolute top-1 w-5 h-5 bg-white rounded-full shadow-md transition-all duration-300 ${active ? 'right-1' : 'left-1'}`}></div>
-      </div>
+    <div className="space-y-2">
+      <label className="text-[10px] font-black text-slate-400 uppercase tracking-widest ml-1">{label}</label>
+      <input name={name} value={val} onChange={onChange} className="w-full p-4 bg-slate-50 border border-slate-100 rounded-xl text-sm font-bold text-slate-900 outline-none focus:bg-white focus:ring-2 focus:ring-slate-100 transition-all" />
     </div>
   );
 }
